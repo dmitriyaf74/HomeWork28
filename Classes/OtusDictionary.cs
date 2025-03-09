@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
@@ -10,28 +11,17 @@ using static System.Math;
 
 namespace HomeWork28.Classes
 {
-    struct DictElement
-    {
-        public int? Key;
-        public string? Name;
-
-        public DictElement(int key, string name) : this()
-        {
-            Key = key;
-            this.Name = name;
-        }
-    }
-
     internal class OtusDictionary: IMyList
     {
         private int _capacity;
         private int _size;
         private DictElement[] _array;
+        public int Capacity {  get { return _capacity; } }
 
         public OtusDictionary()
         {
             _size = 0;
-            _capacity = 1;
+            _capacity = 32;
             _array = new DictElement[_capacity];
         }
 
@@ -72,43 +62,46 @@ namespace HomeWork28.Classes
             newCapacity = Max(newCapacity, _capacity * 2);
 
             DictElement[] newArray = new DictElement[newCapacity];
-            for (int i = 0; i < _size; i++)
+            for (int i = 0; i < _capacity; i++)
             {
-                newArray[i] = _array[i];
+                if (_array[i] is not null)
+                {
+                    DictElement de = _array[i];
+                    var index = de.GetHashCode();
+                    index = index % newCapacity;
+                    newArray[index] = de;
+                }
             }
             _array = newArray;
             _capacity = newCapacity;
         }
 
-        private void CheckUnique(int key)
-        {
-            for (int i = 0; i < _size; i++)
-            {
-                if (_array[i].Key == key)
-                {
-                    throw new NotUniqueKey($"Не уникальный ключ {key}");
-                }
-            }
-        }
-
         public void Add(int key, string value)
         {
-            CheckUnique(key);
             Size = _size + 1;
-            _array[_size - 1] = new(key, value);
+            DictElement de = new(key, value);
+            var index = de.GetHashCode();
+            index = index % _capacity;
+            while (_array[index]?.Key is not null)
+            {
+                Grow(_capacity + 1);
+                index = de.GetHashCode() % _capacity;
+            }
+            _array[index] = de;
         }
 
         public string Get(int key)
         {
-            for (int i = 0; i < _size; i++)
+            for (int i = 0; i < _capacity; i++)
             {
-                if (_array[i].Key == key)
+                if (_array[i]?.Key == key)
                 {
                     return _array[i].Name;
                 }
             }
             throw new EKeyNotFound($"Ключ не найден {key}");
         }
+
         public DictElement IndexOf(int index)
         {
             return _array[index];
