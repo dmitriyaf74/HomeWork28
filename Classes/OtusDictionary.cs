@@ -12,8 +12,8 @@ namespace HomeWork28.Classes
 {
     struct DictElement
     {
-        public int Key;
-        public string Name;
+        public int? Key;
+        public string? Name;
 
         public DictElement(int key, string name) : this()
         {
@@ -72,7 +72,7 @@ namespace HomeWork28.Classes
             newCapacity = Max(newCapacity, _capacity * 2);
 
             DictElement[] newArray = new DictElement[newCapacity];
-            for (int i = 0; i < _capacity; i++)
+            for (int i = 0; i < _size; i++)
             {
                 newArray[i] = _array[i];
             }
@@ -80,8 +80,20 @@ namespace HomeWork28.Classes
             _capacity = newCapacity;
         }
 
+        private void CheckUnique(int key)
+        {
+            for (int i = 0; i < _size; i++)
+            {
+                if (_array[i].Key == key)
+                {
+                    throw new NotUniqueKey($"Не уникальный ключ {key}");
+                }
+            }
+        }
+
         public void Add(int key, string value)
         {
+            CheckUnique(key);
             Size = _size + 1;
             _array[_size - 1] = new(key, value);
         }

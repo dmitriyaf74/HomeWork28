@@ -11,6 +11,7 @@ namespace HomeWork28
             otusDictionary.Add(2, "sdasd");
             otusDictionary.Add(3, "3qwe");
             otusDictionary.Add(4, "4sdasd");
+            otusDictionary.Add(4, "4sdasdsax");
 
             for (int i = 0; i < otusDictionary.Size; i++)
             {
